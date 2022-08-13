@@ -3,7 +3,7 @@ comet-ml==3.31.7
 python-dotenv==0.20.0
 flake8==5.0.4
 pytest==7.1.2
-torchvision==0.12.0
+torchvision==0.13.1
 typed-argparse==0.1.8
 numpy==1.23.0
 isort==5.10.1
