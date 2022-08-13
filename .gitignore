@@ -1,5 +1,10 @@
 __pycache__/
 .env
 /result
-/data/rubber/rubber_data_2022
+
+# /data
+/data/cifar-10-batches-py
+/data/cifar-10-python.tar.gz
+/data/cifar-100-python
+/data/cifar-100-python.tar.gz
 Footer
