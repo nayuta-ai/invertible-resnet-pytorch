@@ -19,6 +19,13 @@ std = {
 
 
 def get_dataloader(args: MyArgs) -> Tuple[DataLoader, DataLoader]:
+    """
+    Args:
+        args (MyArgs): the object converted by the argument in the command line
+
+    Returns:
+        Tuple[DataLoader, DataLoader]: creating the dataloader from the dataset
+    """
     transform_train, transform_test = transform(args)
     if args.dataset == "cifar10":
         trainset = datasets.CIFAR10(
@@ -63,6 +70,35 @@ def get_dataloader(args: MyArgs) -> Tuple[DataLoader, DataLoader]:
 
 
 def transform(args: MyArgs) -> Tuple[transforms.Compose, transforms.Compose]:
+    """
+    Args:
+        args (MyArgs): the object converted by the argument in the command line
+
+    Returns:
+        Tuple[transforms.Compose, transforms.Compose]: transforming and augmenting the train and test dataset
+
+    Explanations:
+        if densityEstimation
+            train
+                - padding (the width = 4, padding mode = symmetric)
+                - random crop (the size = 32)
+                - random horizontal flip
+                - transform to Tensor
+                - dens_est_chain
+            test
+                - transform to Tensor
+                - dens_est_chain
+        else
+            train
+                - padding (the width = 4, padding mode = symmetric)
+                - random crop (the size = 32)
+                - random horizontal flip
+                - transform to Tensor
+                - normalization
+            test
+                - transform to Tensor
+                - normalization
+    """
     train_chain = [
         transforms.Pad(4, padding_mode="symmetric"),
         transforms.RandomCrop(32),
