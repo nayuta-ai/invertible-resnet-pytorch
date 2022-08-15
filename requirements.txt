@@ -8,3 +8,4 @@ typed-argparse==0.1.8
 numpy==1.23.0
 isort==5.10.1
 black==22.6.0
+scipy==1.9.0
