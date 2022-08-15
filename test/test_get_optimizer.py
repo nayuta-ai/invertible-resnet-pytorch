@@ -1,8 +1,5 @@
-from typing import Tuple
-
 import pytest
 import torch.nn as nn
-import torch.optim as optim
 
 from config.parse_args import parse_args
 from data.get_dataloader import get_dataloader
@@ -20,7 +17,9 @@ def test_get_dataloader(dataset: str, num_class: int) -> None:
     args = parse_args(["--dataset", dataset])
     get_dataloader(args)
     model = get_model(args)
-    optimizer = get_optimizer(args, model)
     assert isinstance(
-        optimizer, optim
-    ), f"The type of the output should be optim but, the type of the optput is {type(optimizer)}."
+        model, nn.Module
+    ), "The type of the output from get_model should be nn.Module."
+    assert (
+        model.nClasses == num_class
+    ), f"The output class should be {num_class}, but the output class is {model.nClasses}."

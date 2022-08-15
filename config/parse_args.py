@@ -108,8 +108,14 @@ def parse_args(args: sys.argv) -> MyArgs:
         type=str,
         choices=["relu", "elu", "sorting", "softplus"],
     )
-    # train
+    # optimizer
+    parser.add_argument('--optimizer', default="adamax", type=str, help="optimizer", choices=["adam", "adamax", "sgd"])
     parser.add_argument("--lr", default=0.1, type=float, help="learning rate")
+    parser.add_argument('--weight_decay', default=5e-4, type=float, help='coefficient for weight decay')
+    parser.add_argument('-nesterov', '--nesterov', dest='nesterov', action='store_true',
+                    help='nesterov momentum')
+    
     parser.add_argument("--batch", default=128, type=int, help="batch size")
+    parser.add_argument('--drop_rate', default=0.1, type=float, help='dropout rate')
     parser.add_argument("--epochs", default=200, type=int, help="number of epochs")
     return parser.parse_args(args)
