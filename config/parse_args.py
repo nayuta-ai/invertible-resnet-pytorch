@@ -109,13 +109,51 @@ def parse_args(args: sys.argv) -> MyArgs:
         choices=["relu", "elu", "sorting", "softplus"],
     )
     # optimizer
-    parser.add_argument('--optimizer', default="adamax", type=str, help="optimizer", choices=["adam", "adamax", "sgd"])
+    parser.add_argument(
+        "--optimizer",
+        default="adamax",
+        type=str,
+        help="optimizer",
+        choices=["adam", "adamax", "sgd"],
+    )
     parser.add_argument("--lr", default=0.1, type=float, help="learning rate")
-    parser.add_argument('--weight_decay', default=5e-4, type=float, help='coefficient for weight decay')
-    parser.add_argument('-nesterov', '--nesterov', dest='nesterov', action='store_true',
-                    help='nesterov momentum')
-    
+    parser.add_argument(
+        "--weight_decay", default=5e-4, type=float, help="coefficient for weight decay"
+    )
+    parser.add_argument(
+        "-nesterov",
+        "--nesterov",
+        dest="nesterov",
+        action="store_true",
+        help="nesterov momentum",
+    )
+    # train
+    parser.add_argument(
+        "--resume",
+        default="",
+        type=str,
+        metavar="PATH",
+        help="path to latest checkpoint (default: none)",
+    )
+    parser.add_argument(
+        "-e",
+        "--evaluate",
+        dest="evaluate",
+        action="store_true",
+        help="evaluate model on validation set",
+    )
+    parser.add_argument(
+        "-interpolate",
+        "--interpolate",
+        dest="interpolate",
+        action="store_true",
+        help="train iresnet",
+    )
     parser.add_argument("--batch", default=128, type=int, help="batch size")
-    parser.add_argument('--drop_rate', default=0.1, type=float, help='dropout rate')
+    parser.add_argument("--drop_rate", default=0.1, type=float, help="dropout rate")
     parser.add_argument("--epochs", default=200, type=int, help="number of epochs")
+    parser.add_argument('--warmup_epochs', default=10, type=int, help='epochs for warmup')
+    parser.add_argument('--log_every', default=10, type=int, help='logs every x iters')
+    parser.add_argument('-log_verbose', '--log_verbose', dest='log_verbose', action='store_true',
+                    help='verbose logging: sigmas, max gradient')
     return parser.parse_args(args)

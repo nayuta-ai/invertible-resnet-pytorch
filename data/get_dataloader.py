@@ -6,16 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
 from config.parse_args import MyArgs
-
-mean = {
-    "cifar10": (0.4914, 0.4822, 0.4465),
-    "cifar100": (0.5071, 0.4867, 0.4408),
-}
-
-std = {
-    "cifar10": (0.2023, 0.1994, 0.2010),
-    "cifar100": (0.2675, 0.2565, 0.2761),
-}
+from utils.train_cifar import mean, std
 
 
 def get_dataloader(args: MyArgs) -> Tuple[DataLoader, DataLoader]:
@@ -43,6 +34,7 @@ def get_dataloader(args: MyArgs) -> Tuple[DataLoader, DataLoader]:
             root="./data", train=False, download=True, transform=transform_test
         )
         args.nClasses = 100
+    args.lenData = len(trainset)
     args.in_shape = (3, 32, 32)
 
     if args.deterministic:

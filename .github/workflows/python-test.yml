@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - feature/**
+      - small_feature/**
   pull_request:
     branches:
       - feature/**
+      - small_feature/**
 
 jobs:
   pytest:
