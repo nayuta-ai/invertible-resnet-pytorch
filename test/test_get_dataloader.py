@@ -27,6 +27,6 @@ def test_get_dataloader(dataset: str, num_class: int) -> None:
     """
     args = parse_args(["--dataset", dataset])
     trainloader, testloader = get_dataloader(args)
-    assert type(trainloader) == DataLoader
-    assert type(testloader) == DataLoader
-    assert args.nClasses == num_class
+    assert type(trainloader) == DataLoader, f"The type of trainloader should be DataLoader, but the type of trainloader is {type(trainloader)}"
+    assert type(testloader) == DataLoader, f"The type of testloader should be DataLoader, but the type of testloader is {type(testloader)}"
+    assert args.nClasses == num_class, f"The number of class should be {num_class}, but the number of class is {args.nClasses}."

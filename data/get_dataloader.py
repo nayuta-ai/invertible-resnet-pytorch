@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
 from config.parse_args import MyArgs
+from config.fix_seed import SEED
 
 mean = {
     "cifar10": (0.4914, 0.4822, 0.4465),
@@ -26,6 +27,8 @@ def get_dataloader(args: MyArgs) -> Tuple[DataLoader, DataLoader]:
     Returns:
         Tuple[DataLoader, DataLoader]: creating the dataloader from the dataset
     """
+    WORKER = 2
+
     transform_train, transform_test = transform(args)
     if args.dataset == "cifar10":
         trainset = datasets.CIFAR10(
@@ -49,15 +52,15 @@ def get_dataloader(args: MyArgs) -> Tuple[DataLoader, DataLoader]:
             trainset,
             batch_size=args.batch,
             shuffle=True,
-            num_workers=2,
-            worker_init_fn=np.random.seed(1234),
+            num_workers=WORKER,
+            worker_init_fn=np.random.seed(SEED),
         )
         testloader = torch.utils.data.DataLoader(
             testset,
             batch_size=args.batch,
             shuffle=False,
-            num_workers=2,
-            worker_init_fn=np.random.seed(1234),
+            num_workers=WORKER,
+            worker_init_fn=np.random.seed(SEED),
         )
     else:
         trainloader = torch.utils.data.DataLoader(
