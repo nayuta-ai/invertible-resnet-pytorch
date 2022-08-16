@@ -9,6 +9,7 @@ class MyArgs(TypedArgs):
     class of providing a way to annotate python3 function
     with type information on args
     """
+
     lr: float
     batch: int
     epochs: int
@@ -18,7 +19,7 @@ class MyArgs(TypedArgs):
 
 
 def parse_args(args: sys.argv) -> MyArgs:
-    """ Create parser
+    """Create parser
     Args:
         args (sys.argv): the argument in the command line
 

@@ -1,6 +1,6 @@
 import sys
 
-from config.parse_args import parse_args
+from config import parse_args
 from data.get_dataloader import get_dataloader
 
 

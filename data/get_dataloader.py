@@ -5,8 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
-from config.parse_args import MyArgs
-from config.fix_seed import SEED
+from config import SEED, MyArgs
 
 mean = {
     "cifar10": (0.4914, 0.4822, 0.4465),
