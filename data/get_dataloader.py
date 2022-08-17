@@ -59,7 +59,7 @@ def get_dataloader(args: MyArgs) -> Tuple[DataLoader, DataLoader]:
         testloader = torch.utils.data.DataLoader(
             testset, batch_size=args.batch, shuffle=False, num_workers=2
         )
-    return trainloader, testloader
+    return trainset, testset, trainloader, testloader
 
 
 def transform(args: MyArgs) -> Tuple[transforms.Compose, transforms.Compose]:

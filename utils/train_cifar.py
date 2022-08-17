@@ -1,23 +1,27 @@
-import json
 import math
 import multiprocessing
 import os
-import pdb
-import sys
-import time
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils
-#from joblib import Parallel, delayed
+
+# from joblib import Parallel, delayed
 from torch._six import inf
 from torch.autograd import Variable
 
-from utils.comet_utils import line_plot
+from utils.comet_utils import image_plot, line_plot
 
 criterion = nn.CrossEntropyLoss()
+
+
+def get_hms(seconds):
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return h, m, s
+
 
 mean = {
     "cifar10": (0.4914, 0.4822, 0.4465),
@@ -87,9 +91,7 @@ def try_make_dir(d):
         os.mkdir(d)
 
 
-def train(
-    args, model, optimizer, epoch, trainloader, experiment, use_cuda
-):
+def cifar_train(args, model, optimizer, epoch, trainloader, experiment, use_cuda):
     model.train()
     correct = 0
     total = 0
@@ -100,7 +102,7 @@ def train(
         update_lr(optimizer, lr)
     else:
         lr = args.lr
-    
+
     # the number of parameters
     params = sum([np.prod(p.size()) for p in model.parameters()])
     print("|  Number of Trainable Parameters: " + str(params))
@@ -144,7 +146,7 @@ def train(
         loss.backward()  # Backward Propagation
         optimizer.step()  # Optimizer update
 
-        if args.densityEstimation: # logging for density estimation
+        if args.densityEstimation:  # logging for density estimation
             if batch_idx % args.log_every == 0:
                 mean_trace = trace.mean().item()
                 mean_logpz = logpz.mean().item()
@@ -181,7 +183,10 @@ def train(
                         actnorm_scales_min = np.array(actnorm_scales_min)
                         actnorm_l2 = np.array(actnorm_l2)
                         line_plot(
-                            experiment, "max actnorm scale per layer", cur_iter, actnorm_scales
+                            experiment,
+                            "max actnorm scale per layer",
+                            cur_iter,
+                            actnorm_scales,
                         )
                         line_plot(
                             experiment,
@@ -204,21 +209,30 @@ def train(
                             model.state_dict()["module.prior_logstd"]
                         )
                         line_plot(
-                            experiment, "max prior scale", cur_iter, prior_scales_max.item()
+                            experiment,
+                            "max prior scale",
+                            cur_iter,
+                            prior_scales_max.item(),
                         )
                         line_plot(
-                            experiment, "min prior scale", cur_iter, prior_scales_min.item()
+                            experiment,
+                            "min prior scale",
+                            cur_iter,
+                            prior_scales_min.item(),
                         )
 
-        else: # logging for classification
+        else:  # logging for classification
             _, predicted = torch.max(out.data, 1)
             total += targets.size(0)
             correct += predicted.eq(targets.data).cpu().sum()
+            # r2 = r2_score(targets.cpu().numpy(), predicted.cpu().numpy())
             if batch_idx % 1 == 0:
-                print(f"Eposh {epoch}/{args.epochs} Iter: {batch_idx+1}/{(args.lenData // args.batch) + 1} Loss: {loss.data.item()} Acc: {100.0 * correct.type(torch.FloatTensor) / float(total)}")
+                print(
+                    f"Eposh {epoch}/{args.epochs} Iter: {batch_idx+1}/{(args.lenData // args.batch) + 1} Loss: {loss.data.item()} Acc: {100.0 * correct.type(torch.FloatTensor) / float(total)}"
+                )
 
 
-def test(best_result, args, model, epoch, testloader, viz, use_cuda, test_log):
+def cifar_test(best_result, args, model, epoch, testloader, experiment, use_cuda):
     model.eval()
     objective = 0.0
     total = 0
@@ -238,34 +252,34 @@ def test(best_result, args, model, epoch, testloader, viz, use_cuda, test_log):
             if batch_idx == 0:
                 x_re = model.module.inverse(z, 10) if use_cuda else model.inverse(z, 10)
                 err = (inputs - x_re).abs().sum()
-                line_plot(viz, "recons err", epoch, err.item())
+                line_plot(experiment, "recons err", epoch, err.item())
                 bs = inputs.size(0)
                 samples = (
                     model.module.sample(bs, 10) if use_cuda else model.sample(bs, 10)
                 )
-                im_dir = os.path.join(args.save_dir, "ims")
+                im_dir = os.path.join(args.save_dir, "image")
                 try_make_dir(im_dir)
                 torchvision.utils.save_image(
                     samples.cpu(),
                     os.path.join(im_dir, "samples_{}.jpg".format(epoch)),
-                    int(bs**0.5),
+                    n_rows=int(bs**0.5),
                     normalize=True,
                 )
                 torchvision.utils.save_image(
                     inputs.cpu(),
                     os.path.join(im_dir, "data_{}.jpg".format(epoch)),
-                    int(bs**0.5),
+                    n_rows=int(bs**0.5),
                     normalize=True,
                 )
                 torchvision.utils.save_image(
                     x_re.cpu(),
                     os.path.join(im_dir, "recons_{}.jpg".format(epoch)),
-                    int(bs**0.5),
+                    n_rows=int(bs**0.5),
                     normalize=True,
                 )
-                images_plot(viz, "data", out_im(inputs).cpu())
-                images_plot(viz, "recons", out_im(x_re).cpu())
-                images_plot(viz, "samples", out_im(samples).cpu())
+                image_plot(experiment, im_dir + "samples_{}.jpg".format(epoch))
+                image_plot(experiment, im_dir + "data_{}.jpg".format(epoch))
+                image_plot(experiment, im_dir + "recons_{}.jpg".format(epoch))
                 del x_re, err, samples
 
             del z, logpz, trace, logpx, loss
@@ -281,7 +295,10 @@ def test(best_result, args, model, epoch, testloader, viz, use_cuda, test_log):
 
     objective = float(objective) / float(total)
     line_plot(
-        viz, "test bits/dim" if args.densityEstimation else "test acc", epoch, objective
+        experiment,
+        "test bits/dim" if args.densityEstimation else "test acc",
+        epoch,
+        objective,
     )
     print(
         "\n| Validation Epoch #%d\t\t\tobjective =  %.4f" % (epoch, objective),
@@ -298,16 +315,12 @@ def test(best_result, args, model, epoch, testloader, viz, use_cuda, test_log):
         }
 
         try_make_dir(args.save_dir)
-        torch.save(state, os.path.join(args.save_dir, "checkpoint.t7"))
+        torch.save(state, os.path.join(args.save_dir, "model"))
         best_result = objective
     else:
         print(
             "\n| Not best... {:.4f} < {:.4f}".format(objective, best_result), flush=True
         )
-
-    # log to file
-    test_log.write("{} {}\n".format(epoch, objective))
-    test_log.flush()
     return best_result
 
 
@@ -365,7 +378,8 @@ def clip_conv_layer(model, coeff, use_cuda):
     return
 
 
-def interpolate(model, testloader, epoch, use_cuda, best_acc, dataset, fname):
+def interpolate(model, testloader, epoch, use_cuda):
+    best_acc = 0
     model.eval()
     test_loss = 0
     correct = 0
@@ -393,17 +407,6 @@ def interpolate(model, testloader, epoch, use_cuda, best_acc, dataset, fname):
 
     if acc > best_acc:
         print("| Saving Best model...\t\t\tTop1 = %.4f%%" % (acc), flush=True)
-        state = {
-            "model": model if use_cuda else model,
-            "acc": acc,
-            "epoch": epoch,
-        }
-        if not os.path.isdir("checkpoint"):
-            os.mkdir("checkpoint")
-        save_point = "./checkpoint/" + dataset + os.sep
-        if not os.path.isdir(save_point):
-            os.mkdir(save_point)
-        torch.save(state, save_point + fname + ".t7")
         best_acc = acc
     return best_acc
 

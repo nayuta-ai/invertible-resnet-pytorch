@@ -40,7 +40,7 @@ def parse_args(args: sys.argv) -> MyArgs:
         "-densityEstimation",
         "--densityEstimation",
         dest="densityEstimation",
-        action="store_true",
+        action="store_false",
         help="perform density estimation",
     )
     parser.add_argument(
@@ -152,8 +152,18 @@ def parse_args(args: sys.argv) -> MyArgs:
     parser.add_argument("--batch", default=128, type=int, help="batch size")
     parser.add_argument("--drop_rate", default=0.1, type=float, help="dropout rate")
     parser.add_argument("--epochs", default=200, type=int, help="number of epochs")
-    parser.add_argument('--warmup_epochs', default=10, type=int, help='epochs for warmup')
-    parser.add_argument('--log_every', default=10, type=int, help='logs every x iters')
-    parser.add_argument('-log_verbose', '--log_verbose', dest='log_verbose', action='store_true',
-                    help='verbose logging: sigmas, max gradient')
+    parser.add_argument(
+        "--warmup_epochs", default=10, type=int, help="epochs for warmup"
+    )
+    parser.add_argument("--log_every", default=10, type=int, help="logs every x iters")
+    parser.add_argument(
+        "-log_verbose",
+        "--log_verbose",
+        dest="log_verbose",
+        action="store_true",
+        help="verbose logging: sigmas, max gradient",
+    )
+    parser.add_argument(
+        "--save_dir", default="./results", type=str, help="directory to save results"
+    )
     return parser.parse_args(args)
