@@ -45,6 +45,7 @@ def get_dataloader(args: MyArgs) -> Tuple[DataLoader, DataLoader]:
             root="./data", train=False, download=True, transform=transform_test
         )
         args.nClasses = 100
+    args.in_shape = (3, 32, 32)
 
     if args.deterministic:
         trainloader = torch.utils.data.DataLoader(
