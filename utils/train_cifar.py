@@ -7,7 +7,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils
-
 # from joblib import Parallel, delayed
 from torch._six import inf
 from torch.autograd import Variable

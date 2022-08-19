@@ -13,10 +13,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import constraints
 
-from utils.matrix_utils import (
-    exact_matrix_logarithm_trace,
-    power_series_matrix_logarithm_trace,
-)
+from utils.matrix_utils import (exact_matrix_logarithm_trace,
+                                power_series_matrix_logarithm_trace)
 from utils.model_utils import ActNorm2D, MaxMinGroup, Split, injective_pad
 from utils.model_utils import squeeze as Squeeze
 from utils.spectral_norm_conv_inplace import spectral_norm_conv

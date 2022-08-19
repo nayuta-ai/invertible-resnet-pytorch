@@ -2,7 +2,8 @@ import torch.nn as nn
 
 from config.parse_args import MyArgs
 from models.invertible_resnet import conv_iResNet as iResNet
-from models.invertible_resnet import multiscale_conv_iResNet as multiscale_iResNet
+from models.invertible_resnet import \
+    multiscale_conv_iResNet as multiscale_iResNet
 
 
 def get_model(args: MyArgs) -> nn.Module:

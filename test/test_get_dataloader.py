@@ -13,7 +13,9 @@ def test_transform():
 """
 
 
-@pytest.mark.parametrize("dataset, num_class", [("cifar10", 10), ("cifar100", 100)])
+@pytest.mark.parametrize(
+    "dataset, num_class", [("cifar10", 10), ("cifar100", 100), ("rubber", 1)]
+)
 def test_get_dataloader(dataset: str, num_class: int) -> None:
     """test get_dataloader function
     Args:
@@ -21,7 +23,7 @@ def test_get_dataloader(dataset: str, num_class: int) -> None:
         num_class (int): the number of correct classes to test the number of classes in the dataset
     """
     args = parse_args(["--dataset", dataset])
-    trainloader, testloader = get_dataloader(args)
+    _, _, trainloader, testloader = get_dataloader(args)
     assert type(trainloader) == DataLoader
     assert type(testloader) == DataLoader
     assert args.nClasses == num_class
